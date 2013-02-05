@@ -1,0 +1,122 @@
+<html>
+    <head>
+        <title>Notepad</title>
+        <script src="zepto.min.js"></script>
+        <style type="text/css">
+            .unsaved {
+                position: fixed;
+                right: 20px;
+                bottom: 20px;
+                background: silver;
+                padding: 5px;
+            }
+            .changed {
+                position: fixed;
+                left: 20px;
+                bottom: 20px;
+                background: red;
+                padding: 5px;
+            }
+            .unsaved, .changed {display:none;}
+
+            .draft .unsaved,
+            .changed-remote .changed 
+            {
+                display: block;
+            }
+        </style>
+    </head>
+    <body style="margin:0;font-family:'Source Code Pro',consolas,monospace;font-size:1em;">
+    <div id="edit" contenteditable style="padding:1em;outline:0;min-height:90%;"></div>
+    <div class="unsaved">Draft</div>
+    <div class="changed">Remote Changed (Ctrl-S to overwrite with local) or <button>Use Remote</button></div>
+    <script>
+        var key=window.location.pathname.substr(1) || "index",
+            api_root="http://api.jrnltxt.com",
+            $body = $("body"),
+            e = document.getElementById('edit'),
+            v = localStorage[key] || "";
+        
+        $(".changed button").click(function() {
+            var content = localStorage[key+":remote"];
+
+            localStorage[key] = content;
+            localStorage[key+":saved"] = content;
+            e.innerHTML = content;
+
+            delete localStorage[key+":remote"];
+
+            $body.removeClass("changed-remote");
+        });
+
+        if (key !== "index") {
+            $.getJSON(api_root+'/jrnl/'+key, function(data) {
+                var remote = data.content;
+
+                if (remote) {
+                    var current = localStorage[key+":saved"],
+                        draft = localStorage[key];
+
+                    if (current != remote && v) {
+                        if (current == draft) {
+                            v = "";
+                        } else {
+                            $body.addClass("changed-remote");
+                            localStorage[key+":remote"] = remote;
+                        }
+                    }
+
+                    if (!v) {
+                        localStorage[key+":saved"] = remote;
+                        localStorage[key] = remote;
+                        e.innerHTML = remote;
+                        v = remote;
+                    }
+                }
+            });
+        }
+
+        e.innerHTML = v;
+        placeCaretAtEnd(e);
+
+        var changed = true;
+
+        e.onkeyup = function() {
+            localStorage[key] = this.innerHTML;
+            changed = localStorage[key] != localStorage[key+":saved"];
+
+            if (changed) {
+                $body.addClass("draft");
+            } else {
+                $body.removeClass("draft");
+            }
+        };
+
+        $body.keydown(function(event) {
+            //19 for Mac Command+S
+            if (!( String.fromCharCode(event.which).toLowerCase() == 's' && event.ctrlKey) && !(event.which == 19)) return true;
+
+            var pkey = key==="index"?"":("/"+key),
+                content = localStorage[key];
+
+            $.post(api_root+'/jrnl'+pkey, {content: content}, function(response) {
+                localStorage[key+":saved"]=content;
+                if (response.id != key)
+                    window.location="/"+response.id;
+            }, 'json');
+
+            event.preventDefault();
+            return false;
+        });
+
+        function placeCaretAtEnd(el) {
+            el.focus();
+            var range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+    </script>
+</body></html>
