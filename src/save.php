@@ -1,12 +1,9 @@
 <?php
  // composer provided autoloader
-require("../vendor/autoload.php");
+require("../config.php");
+
 header("Content-Type: application/json");
 
-$prefix = "doc:";
- 
-$redis = new Predis\Client();
- 
 $key = $_POST["key"];
 $content = $_POST["content"];
 
