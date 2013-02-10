@@ -75,13 +75,3 @@ $body.keydown(function(event) {
     return false;
 });
 
-function placeCaretAtEnd(el) {
-    el.focus();
-    var range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-}
-

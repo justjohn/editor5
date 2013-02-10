@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Notepad</title>
-        <script src="zepto.min.js"></script>
+        <script src="vendor/zepto.min.js"></script>
         <style type="text/css">
             .unsaved {
                 position: fixed;
@@ -30,6 +30,7 @@
     <div id="edit" contenteditable style="padding:1em;outline:0;min-height:90%;"></div>
     <div class="unsaved">Draft</div>
     <div class="changed">Remote Changed (Ctrl-S to overwrite with local) or <button>Use Remote</button></div>
-    <script src="api.js"></script>
-    <script src="scripts.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/scripts.js"></script>
 </body></html>
