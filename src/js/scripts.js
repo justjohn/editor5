@@ -79,3 +79,15 @@ Mousetrap.bindGlobal(['meta+s', 'ctrl+s'], function(e) {
     });
 });
 
+Mousetrap.bindGlobal(["meta+m", "ctrl+m"], function(e) {
+    stopDefaultKey(e);
+
+    // preview as markdown
+    var content = getContentEditableText(editorEl);
+    console.log(editorEl);
+    console.log(content);
+});
+
+
+
+

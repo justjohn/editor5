@@ -1,3 +1,10 @@
+// From: http://bonsaiden.github.com/JavaScript-Garden/#types
+function is(type, obj) {
+    var clas = Object.prototype.toString.call(obj).slice(8, -1);
+    return obj !== undefined && obj !== null && clas === type;
+}
+
+
 // From: http://stackoverflow.com/a/4238971
 function placeCaretAtEnd(el) {
     el.focus();
@@ -17,59 +24,24 @@ function placeCaretAtEnd(el) {
     }
 }
 
-// From: http://stackoverflow.com/a/4140071
-function extractTextWithWhitespace(elems)
-{
-    var lineBreakNodeName = "BR"; // Use <br> as a default
-    if ($.browser.webkit)
-    {
-        lineBreakNodeName = "DIV";
-    }
-    else if ($.browser.msie)
-    {
-        lineBreakNodeName = "P";
-    }
-    else if ($.browser.mozilla)
-    {
-        lineBreakNodeName = "BR";
-    }
-    else if ($.browser.opera)
-    {
-        lineBreakNodeName = "P";
-    }
-    var extractedText = extractTextWithWhitespaceWorker(elems, lineBreakNodeName);
+// From: http://stackoverflow.com/a/4163827
+function getContentEditableText(el) {
+    var ce = $("<pre />").html(is("String", el)?el:el.innerHTML);
 
-    return extractedText;
+    if ($.browser.webkit) {
+      ce.find("div").each(function() { 
+          $(this).replaceWith("\n" + getContentEditableText(this.innerHTML)); 
+      });
+      ce.find("br").replaceWith("");
+    }
+
+    if ($.browser.msie)
+      ce.find("p").each(function() {
+          $(this).replaceWith(getContentEditableText(this.innerHTML) + "<br>"); 
+      });
+    if ($.browser.mozilla || $.browser.opera || $.browser.msie)
+      ce.find("br").replaceWith("\n");
+
+    return ce.html();
 }
-
-// Cribbed from jQuery 1.4.2 (getText) and modified to retain whitespace
-function extractTextWithWhitespaceWorker(elems, lineBreakNodeName)
-{
-    var ret = "";
-    var elem;
-
-    for (var i = 0; elems[i]; i++)
-    {
-        elem = elems[i];
-
-        if (elem.nodeType === 3     // text node
-            || elem.nodeType === 4) // CDATA node
-        {
-            ret += elem.nodeValue;
-        }
-
-        if (elem.nodeName === lineBreakNodeName)
-        {
-            ret += "\n";
-        }
-
-        if (elem.nodeType !== 8) // comment node
-        {
-            ret += extractTextWithWhitespace(elem.childNodes, lineBreakNodeName);
-        }
-    }
-
-    return ret;
-}
-
 
