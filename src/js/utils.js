@@ -29,19 +29,55 @@ function getContentEditableText(el) {
     var ce = $("<pre />").html(is("String", el)?el:el.innerHTML);
 
     if ($.browser.webkit) {
-      ce.find("div").each(function() { 
-          $(this).replaceWith("\n" + getContentEditableText(this.innerHTML)); 
+      ce.find("div").each(function() {
+          $(this).replaceWith("\n" + getContentEditableText(this.innerHTML));
       });
       ce.find("br").replaceWith("");
     }
 
     if ($.browser.msie)
       ce.find("p").each(function() {
-          $(this).replaceWith(getContentEditableText(this.innerHTML) + "<br>"); 
+          $(this).replaceWith(getContentEditableText(this.innerHTML) + "<br>");
       });
     if ($.browser.mozilla || $.browser.opera || $.browser.msie)
       ce.find("br").replaceWith("\n");
 
-    return ce.html();
+    var text = ce.html();
+    text = text.replace("&nbsp;", " ");
+
+    return text;
 }
 
+function pasteHtmlAtCaret(html) {
+    var sel, range;
+    if (window.getSelection) {
+        // IE9 and non-IE
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            range.deleteContents();
+
+            // Range.createContextualFragment() would be useful here but is
+            // non-standard and not supported in all browsers (IE9, for one)
+            var el = document.createElement("div");
+            el.innerHTML = html;
+            var frag = document.createDocumentFragment(), node, lastNode;
+            while ( (node = el.firstChild) ) {
+                lastNode = frag.appendChild(node);
+            }
+            range.insertNode(frag);
+
+            // Preserve the selection
+            if (lastNode) {
+                range = range.cloneRange();
+                range.setStartAfter(lastNode);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    } else if (document.selection && document.selection.type != "Control") {
+        // IE < 9
+        document.selection.createRange().pasteHTML(html);
+    }
+}

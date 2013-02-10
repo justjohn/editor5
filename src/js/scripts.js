@@ -84,10 +84,14 @@ Mousetrap.bindGlobal(["meta+m", "ctrl+m"], function(e) {
 
     // preview as markdown
     var content = getContentEditableText(editorEl);
-    console.log(editorEl);
     console.log(content);
 });
 
+Mousetrap.bindGlobal(["meta+h", "ctrl+h"], function(e) {
+    stopDefaultKey(e);
 
+    var input = prompt("Enter HTML to inject");
+    pasteHtmlAtCaret(input);
+});
 
 
