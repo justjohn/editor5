@@ -54,10 +54,17 @@ editorEl.onkeyup = function() {
     }
 };
 
-$body.keydown(function(event) {
-    // Capture Ctrl-S and Cmd-S
-    if (!( String.fromCharCode(event.which).toLowerCase() == 's' && event.ctrlKey) && !(event.which == 19))
-        return true;
+function stopDefaultKey(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    } else {
+        // internet explorer
+        e.returnValue = false;
+    }
+}
+
+Mousetrap.bindGlobal(['meta+s', 'ctrl+s'], function(e) {
+    stopDefaultKey(e);
 
     var pkey = key == draft_key?"":key,
         local = localStorage[key];
@@ -70,8 +77,5 @@ $body.keydown(function(event) {
         if (response.key != key)
             window.location="/"+response.key;
     });
-
-    event.preventDefault();
-    return false;
 });
 
