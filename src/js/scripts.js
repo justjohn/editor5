@@ -94,4 +94,10 @@ Mousetrap.bindGlobal(["meta+h", "ctrl+h"], function(e) {
     pasteHtmlAtCaret(input);
 });
 
+Mousetrap.bindGlobal(["meta+j", "ctrl+j"], function(e) {
+    stopDefaultKey(e);
+
+    var value = getEscapedSelection();
+    pasteHtmlAtCaret(value);
+});
 
